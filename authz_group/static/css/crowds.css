@@ -1,0 +1,11 @@
+.crowd_control {
+    border: 1px solid purple;
+    height: 300px;
+    width: 500px;
+    overflow-y: scroll;
+}
+
+.cc_loading {
+    background-color: yellow;
+}
+
