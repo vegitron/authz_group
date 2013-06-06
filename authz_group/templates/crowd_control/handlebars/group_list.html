@@ -2,7 +2,7 @@
     <div class="group_list">
     {% tplhandlebars "cc_group_list" %}
         {{#each crowds}}
-        <label>{{ implementation.name }} <input type="checkbox" class="cc_crowd_select" value="{{ id }}"/></label>
+        <label>{{ implementation.name }} <input type="checkbox" class="cc_crowd_select" value="{{ id }}" {{#if selected }}checked="checked"{{/if}} /></label>
         <br />
         {{/each}}
     </div>

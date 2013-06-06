@@ -5,7 +5,7 @@
         var opts = $.extend( { group_ids: [] }, options);
 
         return this.each(function() {
-            initialize_crowds($(this));
+            initialize_crowds($(this), opts);
         });
     };
 
@@ -35,9 +35,10 @@
         instance.trigger('save', [ids]);
     }
 
-    function initialize_crowds(instance) {
+    function initialize_crowds(instance, opts) {
         instance.addClass("crowd_control");
         instance.addClass("cc_loading");
+        instance.data('selected_groups', opts.group_ids);
 
         instance.on("click", handle_cc_click);
 
@@ -48,6 +49,25 @@
 
     function group_data_success(instance, data) {
         var len = data.length;
+
+        var selected_groups = instance.data()["selected_groups"];
+        var group_lookup = {};
+        for (var i = 0; i < selected_groups.length; i++) {
+            group_lookup[selected_groups[i]] = true;
+        }
+
+        var group_data = data;
+
+        for (var i = 0; i < group_data.length; i++) {
+            if (group_lookup[group_data[i].id]) {
+                group_data[i].selected = true;
+            }
+        }
+
+        var template_data = {
+            has_selected_groups: selected_groups.length,
+            crowds: group_data
+        };
 
         var template = get_compiled_template("cc_group_list");
 
