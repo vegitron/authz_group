@@ -4,6 +4,7 @@ function cancel_handle(ev) {
 
 function save_handle(instance, ids) {
     console.log("Save for: ", $(instance).parent());
+    console.log("IDS: ", ids);
 }
 
 $(".crowds_demo").crowd_control().on('cancel', cancel_handle).on('save', save_handle);

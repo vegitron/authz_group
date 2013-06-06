@@ -1,0 +1,13 @@
+{% load templatetag_handlebars %}
+    <div class="group_list">
+    {% tplhandlebars "cc_group_list" %}
+        {{#each crowds}}
+        <label>{{ implementation.name }} <input type="checkbox" class="cc_crowd_select" value="{{ id }}"/></label>
+        <br />
+        {{/each}}
+    </div>
+    <div class="cc_actions">
+        <button class="cc_cancel">Cancel</button>
+        <button class="cc_save">Save</button>
+    </div>
+    {% endtplhandlebars %}

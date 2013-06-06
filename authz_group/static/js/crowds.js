@@ -1,4 +1,6 @@
 (function($) {
+    var compiled_templates = {};
+
     $.fn.crowd_control = function(options) {
         var opts = $.extend( { group_ids: [] }, options);
 
@@ -7,9 +9,30 @@
         });
     };
 
-    function handle_cc_click() {
-        console.log(this);
-        $(this).trigger('cancel');
+    function handle_cc_click(ev) {
+        var target_class = ev.target.className;
+
+        if (target_class == "cc_cancel") {
+            cancel_chooser($(this));
+        }
+        else if (target_class == "cc_save") {
+            save_chooser($(this));
+        }
+    }
+
+    function cancel_chooser(instance) {
+        instance.trigger('cancel');
+    }
+
+    function save_chooser(instance) {
+        var checked = instance.find("input.cc_crowd_select:checked");
+        var checked_len = checked.length;
+
+        var ids = [];
+        for (var i = 0; i < checked_len; i++) {
+            ids.push($(checked[i]).val());
+        }
+        instance.trigger('save', [ids]);
     }
 
     function initialize_crowds(instance) {
@@ -25,22 +48,23 @@
 
     function group_data_success(instance, data) {
         var len = data.length;
-        for (var i = 0; i < len; i++) {
-            var instance_data = data[i];
 
-            var new_div = $("<div />");
+        var template = get_compiled_template("cc_group_list");
 
-            new_div.addClass("cc_type_"+instance_data.source_type);
-            new_div.addClass("cc_id_"+instance_data.source_key);
-
-            if (instance_data["implementation"]["name"]) {
-                new_div.text(instance_data["implementation"]["name"]);
-            }
-            instance.append(new_div);
-        }
+        instance.html(template({ crowds: data }));
 
         instance.removeClass("cc_loading");
     };
+
+    function get_compiled_template(id) {
+        if (!compiled_templates[id]) {
+            var source = $("#"+id).html();
+            var template = Handlebars.compile(source);
+            compiled_templates[id] = template;
+        }
+
+        return compiled_templates[id];
+    }
 
 }(jQuery));
 
