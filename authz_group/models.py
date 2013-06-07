@@ -2,6 +2,7 @@ from django.db import models
 from wsgiref.handlers import format_date_time
 import time
 from authz_group.authz_implementation.solstice import SolsticeCrowdImplementation
+from authz_group.authz_implementation.uw_group_service import UWGroupService
 
 class Person(models.Model):
     person_id = models.AutoField(primary_key = True, db_column = 'person_id')
@@ -57,7 +58,7 @@ class Crowd(models.Model):
 
     @staticmethod
     def get_crowd_backends():
-        return [SolsticeCrowdImplementation]
+        return [SolsticeCrowdImplementation, UWGroupService]
 
 
     @staticmethod
@@ -127,5 +128,42 @@ class SolsticeCrowdOwner(models.Model):
     class Meta:
         db_table = 'CrowdOwner'
         unique_together = ('sol_crowd', 'person')
+
+
+# This is supporting the uw_group_service authz_implemention
+class GWSCrowd(models.Model):
+    id = models.IntegerField(db_column='id')
+    source_key = models.CharField(db_column='source_key', primary_key=True, max_length=255)
+    name = models.CharField(max_length=255, db_column='name')
+    description = models.TextField(db_column='description')
+    date_created = models.DateTimeField(db_column='date_created')
+    date_modified = models.DateTimeField(db_column='date_modified')
+    date_reconciled = models.DateTimeField(db_column='date_reconciled')
+
+    def json_data_structure(self):
+        return {
+            'name': self.name,
+            'description': self.description,
+            'date_modified': format_date_time(time.mktime(self.date_modified.timetuple())),
+            'date_created': format_date_time(time.mktime(self.date_created.timetuple())),
+        }
+
+    def get_source_type(self):
+        return 'Catalyst::Model::GroupSource::GWS'
+
+    class Meta:
+        db_table = 'GWSGroup'
+
+class GWSCrowdOwner(models.Model):
+    id = models.AutoField(db_column='gws_viewers_id', primary_key=True)
+    gws_crowd = models.ForeignKey(GWSCrowd, db_column='source_key')
+    person_id = models.IntegerField(db_column='person_id', db_index=True)
+
+    class Meta:
+        db_table = 'GWSViewers'
+        unique_together = ('gws_crowd', 'person_id')
+
+
+
 
 

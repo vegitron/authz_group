@@ -2,6 +2,8 @@
 # pacakge
 
 from restclients.gws import GWS
+import authz_group.models
+
 
 class UWGroupService():
     def is_member_of_group(self, user_name, group_source_id):
@@ -15,3 +17,16 @@ class UWGroupService():
 
     def group_membership_url(self, group_source_id):
         return "https://iam-ws.u.washington.edu/group_ws/v1/group/%s/member" % group_source_id
+
+    @staticmethod
+    def get_groups_for_user(login_name):
+        person = authz_group.models.Person.objects.get(login_name = login_name)
+
+        crowd_owners = authz_group.models.GWSCrowdOwner.objects.filter(person_id = person.pk)
+
+        crowds = []
+        for owner in crowd_owners:
+            crowds.append(owner.gws_crowd)
+
+        return crowds
+
