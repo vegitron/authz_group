@@ -1,10 +1,26 @@
 {% load templatetag_handlebars %}
-    <div class="group_list">
     {% tplhandlebars "cc_group_list" %}
-        {{#each crowds}}
-        <label>{{ implementation.name }} <input type="checkbox" class="cc_crowd_select" value="{{ id }}" {{#if selected }}checked="checked"{{/if}} /></label>
-        <br />
-        {{/each}}
+    <div class="group_list{{#if has_selected_groups}} groups_pre_selected{{/if}}">
+        <div class="cc_add_more_groups_panel cc_chooser_panel">
+            {{#each crowds}}
+            <label>{{ implementation.name }} <input type="checkbox" class="cc_crowd_select" value="{{ id }}" {{#if selected }}checked="checked"{{/if}} /></label>
+            <br />
+            {{/each}}
+        </div>
+        {{#if has_selected_groups }}
+        <div class="cc_existing_groups_panel cc_chooser_panel">
+            <a href="javascript:void(0);" class="cc_show_full_chooser">Select groups</a>
+            {{#each crowds}}
+                {{#if selected}}
+                    <div class="cc_crowd_wrapper">
+                        <label>{{ implementation.name }} <input type="checkbox" class="cc_crowd_select" value="{{ id }}" checked="checked" /></label>
+                        <span class="cc_remove_link"><a href="javascript:void(0);" class="cc_remove_crowd">Remove</a></span>
+                        <span class="cc_readd_link"><a href="javascript:void(0);" class="cc_readd_crowd">Undo</a></span>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </div>
+        {{/if}}
     </div>
     <div class="cc_actions">
         <button class="cc_cancel">Cancel</button>

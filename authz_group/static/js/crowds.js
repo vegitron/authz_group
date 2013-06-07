@@ -18,6 +18,25 @@
         else if (target_class == "cc_save") {
             save_chooser($(this));
         }
+        else if (target_class == "cc_remove_crowd") {
+            remove_preselected_crowd(ev.target);
+        }
+        else if (target_class == "cc_readd_crowd") {
+            readd_preselected_crowd(ev.target);
+        }
+        else if (target_class == "cc_show_full_chooser") {
+            show_full_crowd_chooser($(this));
+        }
+    }
+
+    function show_full_crowd_chooser(instance) {
+        var current_ids = get_selected_groups(instance);
+
+        show_chooser(instance, {
+            selected: current_ids,
+            group_data: instance.data('group_data'),
+            show_starting_selection: false
+        });
     }
 
     function cancel_chooser(instance) {
@@ -25,14 +44,19 @@
     }
 
     function save_chooser(instance) {
-        var checked = instance.find("input.cc_crowd_select:checked");
+        var ids = get_selected_groups(instance);
+        instance.trigger('save', [ids]);
+    }
+
+    function get_selected_groups(instance) {
+        var checked = instance.find("div.cc_chooser_panel:visible input.cc_crowd_select:checked");
         var checked_len = checked.length;
 
         var ids = [];
         for (var i = 0; i < checked_len; i++) {
             ids.push($(checked[i]).val());
         }
-        instance.trigger('save', [ids]);
+        return ids;
     }
 
     function initialize_crowds(instance, opts) {
@@ -48,32 +72,46 @@
     };
 
     function group_data_success(instance, data) {
-        var len = data.length;
+        show_chooser(instance, {
+            selected: instance.data()["selected_groups"],
+            group_data: data,
+            show_starting_selection: true
+        });
 
-        var selected_groups = instance.data()["selected_groups"];
+        instance.removeClass("cc_loading");
+    };
+
+    function show_chooser(instance, opts) {
+        var group_data = opts["group_data"];
+
+        var len = group_data.length;
+
+        var selected_groups = opts["selected"];
         var group_lookup = {};
         for (var i = 0; i < selected_groups.length; i++) {
             group_lookup[selected_groups[i]] = true;
         }
 
-        var group_data = data;
+        instance.data('group_data', group_data);
 
         for (var i = 0; i < group_data.length; i++) {
             if (group_lookup[group_data[i].id]) {
                 group_data[i].selected = true;
             }
+            else {
+                group_data[i].selected = false;
+            }
         }
 
         var template_data = {
-            has_selected_groups: selected_groups.length,
+            has_selected_groups: (selected_groups.length && opts["show_starting_selection"]),
             crowds: group_data
         };
 
         var template = get_compiled_template("cc_group_list");
 
-        instance.html(template({ crowds: data }));
-
-        instance.removeClass("cc_loading");
+        var html = template(template_data);
+        instance.html(template(template_data));
     };
 
     function get_compiled_template(id) {
@@ -84,6 +122,17 @@
         }
 
         return compiled_templates[id];
+    }
+
+    function remove_preselected_crowd(target) {
+        var containing_div = $(target).closest(".cc_crowd_wrapper");
+        containing_div.addClass('cc_removed_crowd');
+        containing_div.find("input").prop('checked', false);
+    }
+    function readd_preselected_crowd(target) {
+        var containing_div = $(target).closest(".cc_crowd_wrapper");
+        containing_div.removeClass('cc_removed_crowd');
+        containing_div.find("input").prop('checked', true);
     }
 
 }(jQuery));
