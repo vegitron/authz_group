@@ -10,5 +10,18 @@ class SolsticeCrowdImplementation():
 
         return sol_crowds
 
+    @staticmethod
+    def get_css_source_type():
+        return 'Solstice--Model--GroupSource--Crowd'
 
+    @staticmethod
+    def get_source_type():
+        return 'Solstice::Model::GroupSource::Crowd'
 
+    @staticmethod
+    def json_data_structure():
+        return {
+            'source_type': SolsticeCrowdImplementation.get_source_type(),
+            'css_source_type': SolsticeCrowdImplementation.get_css_source_type(),
+            'display_name': 'Your groups',
+        }

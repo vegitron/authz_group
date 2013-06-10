@@ -27,6 +27,19 @@
         else if (target_class == "cc_show_full_chooser") {
             show_full_crowd_chooser($(this));
         }
+        else if (target_class == "cc_crowd_filter_source_type") {
+            filter_group_display_by_source($(this), ev.target.rel);
+        }
+    }
+
+    function filter_group_display_by_source(instance, filter) {
+        if (filter == 'all') {
+            instance.find(".cc_crowd").show();
+            return;
+        }
+
+        instance.find(".cc_crowd").hide();
+        instance.find(".cc_crowd."+filter).show();
     }
 
     function show_full_crowd_chooser(instance) {
@@ -72,9 +85,11 @@
     };
 
     function group_data_success(instance, data) {
+        var crowds = data.crowds;
+        instance.data('source_types', data.source_types);
         show_chooser(instance, {
             selected: instance.data()["selected_groups"],
-            group_data: data,
+            group_data: crowds,
             show_starting_selection: true
         });
 
@@ -103,14 +118,15 @@
             }
         }
 
+        var source_types = instance.data()['source_types'];
         var template_data = {
             has_selected_groups: (selected_groups.length && opts["show_starting_selection"]),
-            crowds: group_data
+            crowds: group_data,
+            source_types: source_types
         };
 
         var template = get_compiled_template("cc_group_list");
 
-        var html = template(template_data);
         instance.html(template(template_data));
     };
 

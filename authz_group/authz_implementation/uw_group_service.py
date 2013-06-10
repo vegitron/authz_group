@@ -30,3 +30,18 @@ class UWGroupService():
 
         return crowds
 
+    @staticmethod
+    def get_source_type():
+        return 'Catalyst::Model::GroupSource::GWS'
+
+    @staticmethod
+    def get_css_source_type():
+        return 'Catalyst--Model--GroupSource--GWS'
+
+    @staticmethod
+    def json_data_structure():
+        return {
+            'source_type': UWGroupService.get_source_type(),
+            'display_name': 'UW Groups',
+            'css_source_type': UWGroupService.get_css_source_type(),
+        }

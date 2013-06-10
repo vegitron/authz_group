@@ -17,5 +17,14 @@ def group_data(request):
     for crowd in crowds:
         all_objects.append(crowd.json_data_structure())
 
-    return HttpResponse(json.dumps(all_objects), { "Content-type": "application/json; charset=utf-8" })
+    all_backend_sources = []
+    for backend in Crowd.get_crowd_backends():
+        all_backend_sources.append(backend.json_data_structure())
+
+    data = {
+        'crowds': all_objects,
+        'source_types': all_backend_sources,
+    }
+
+    return HttpResponse(json.dumps(data), { "Content-type": "application/json; charset=utf-8" })
 

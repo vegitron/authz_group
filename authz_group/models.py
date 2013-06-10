@@ -34,10 +34,13 @@ class Crowd(models.Model):
         raise Exception("Don't have this implemented yet")
 
     def json_data_structure(self):
+        css_source_type = self.source_type.replace(':', '-')
+
         data = {
             'id': self.id,
             'source_key': self.source_key,
             'source_type': self.source_type,
+            'css_source_type': css_source_type,
             'implementation': [],
         }
 
@@ -115,7 +118,7 @@ class SolsticeCrowd(models.Model):
         }
 
     def get_source_type(self):
-        return 'Solstice::Model::GroupSource::Crowd'
+        return SolsticeCrowdImplementation.get_source_type()
 
     class Meta:
         db_table = 'Crowd'
@@ -149,7 +152,7 @@ class GWSCrowd(models.Model):
         }
 
     def get_source_type(self):
-        return 'Catalyst::Model::GroupSource::GWS'
+        return UWGroupService.get_source_type()
 
     class Meta:
         db_table = 'GWSGroup'
