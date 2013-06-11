@@ -27,11 +27,19 @@ class Crowd(models.Model):
 
     owners = models.ManyToManyField(Person, through='CrowdOwner')
 
+    _source_types = {}
+
     def get_group(self):
         if self._group:
             return self._group
 
-        raise Exception("Don't have this implemented yet")
+        raise Exception("Not implemented!")
+
+
+    def is_member(self, login_name):
+        backend = self.get_backend_for_source(self.source_type)
+
+        return backend().is_member_of_group(login_name, self.source_key)
 
     def json_data_structure(self):
         css_source_type = self.source_type.replace(':', '-')
@@ -79,10 +87,26 @@ class Crowd(models.Model):
 
         return crowd
 
+    @staticmethod
+    def register_source_types():
+        for backend in Crowd.get_crowd_backends():
+            Crowd._source_types[backend.get_source_type()] = backend
+
+    @staticmethod
+    def get_backend_for_source(source_type):
+        if source_type in Crowd._source_types:
+            return Crowd._source_types[source_type]
+
+        raise UnknownCrowdBackendException(source_type)
+
     class Meta:
         db_table = 'GroupWrapper'
         unique_together = ('source_key', 'source_type')
 
+class UnknownCrowdBackendException(Exception):
+    pass
+
+Crowd.register_source_types()
 
 class CrowdOwner(models.Model):
     id = models.AutoField(db_column='group_owner_id', primary_key=True)
@@ -122,6 +146,14 @@ class SolsticeCrowd(models.Model):
 
     class Meta:
         db_table = 'Crowd'
+
+class SolsticeCrowdMember(models.Model):
+    sol_crowd = models.ForeignKey(SolsticeCrowd, db_column='crowd_id', db_index=True)
+    person = models.ForeignKey(Person, db_column='person_id', db_index=True)
+
+    class Meta:
+        db_table = 'PeopleInCrowd'
+        unique_together = ('sol_crowd', 'person')
 
 class SolsticeCrowdOwner(models.Model):
     id = models.AutoField(db_column='crowd_owner_id', primary_key=True)
