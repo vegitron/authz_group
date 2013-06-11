@@ -2,7 +2,7 @@ from django.db import models
 from wsgiref.handlers import format_date_time
 import time
 from authz_group.authz_implementation.solstice import SolsticeCrowdImplementation
-from authz_group.authz_implementation.uw_group_service import UWGroupService
+from django.conf import settings
 
 class Person(models.Model):
     person_id = models.AutoField(primary_key = True, db_column = 'person_id')
@@ -69,7 +69,11 @@ class Crowd(models.Model):
 
     @staticmethod
     def get_crowd_backends():
-        return [SolsticeCrowdImplementation, UWGroupService]
+        # XXX
+        if hasattr(settings, 'AUTHZ_GROUP_CROWD_IMPLEMENTATIONS'):
+            pass
+
+        return [SolsticeCrowdImplementation]
 
 
     @staticmethod
