@@ -1,0 +1,2 @@
+recursive-include authz_group/templates *
+recursive-include authz_group/static *
